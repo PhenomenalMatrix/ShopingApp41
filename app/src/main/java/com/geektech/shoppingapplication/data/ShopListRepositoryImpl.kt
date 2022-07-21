@@ -1,5 +1,8 @@
 package com.geektech.shoppingapplication.data
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Transformations
+import com.geektech.shoppingapplication.App
 import com.geektech.shoppingapplication.domain.ShopListRepository
 import com.geektech.shoppingapplication.domain.entity.ShopItem
 
@@ -8,11 +11,14 @@ class ShopListRepositoryImpl : ShopListRepository {
     private val shopList = mutableListOf<ShopItem>()
     private var autoIncrementId = 0
 
+    private val mapper = ShopListMapper()
+
     override fun addShopItem(shopItem: ShopItem) {
-        if (shopItem.id == autoIncrementId){
-            shopItem.id = autoIncrementId++
-        }
-        shopList.add(shopItem)
+//        if (shopItem.id == autoIncrementId){
+//            shopItem.id = autoIncrementId++
+//        }
+//        shopList.add(shopItem)
+        App.appDataBase.shopDao().addShopItem(mapper.mapEntityToDbModel(shopItem))
     }
 
     override fun deleteShopItem(shopItem: ShopItem) {
@@ -29,7 +35,9 @@ class ShopListRepositoryImpl : ShopListRepository {
         return shopList[shopItemId]
     }
 
-    override fun getShopList(): List<ShopItem> {
-        return shopList.toList()
+    override fun getShopList(): LiveData<List<ShopItem>> = Transformations.map(
+        App.appDataBase.shopDao().getShopList()
+    ) {
+        mapper.mapListDbModelToListEntity(it)
     }
 }

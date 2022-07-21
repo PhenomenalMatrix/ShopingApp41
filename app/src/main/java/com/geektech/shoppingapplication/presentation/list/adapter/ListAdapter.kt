@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.geektech.shoppingapplication.R
 import com.geektech.shoppingapplication.databinding.ItemShopDisabledBinding
@@ -18,8 +19,10 @@ class ListAdapter(private val onClick: ((shopItem: ShopItem) -> Boolean)? = null
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     var list = listOf<ShopItem>()
         set(value) {
+            val callback = ShopListDiffCallback(list,value)
+            val diffResult = DiffUtil.calculateDiff(callback)
+            diffResult.dispatchUpdatesTo(this)
             field = value
-            notifyDataSetChanged()
         }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
